@@ -1,0 +1,20 @@
+mahdi_coin_app/
+├── backend/             # Rename from mhdb_backend for standard naming
+│   ├── app/
+│   ├── config/          # Centralized config (e.g., config.py, secrets mgmt)
+│   ├── logs/
+│   └── Dockerfile
+├── frontend/            # Rename from mhdb_frontend
+│   ├── nginx/
+│   │   └── nginx.conf
+│   └── Dockerfile
+├── ci-cd/
+│   └── deploy.yml
+├── deploy/
+│   ├── deploy.sh
+│   └── systemd/
+│       └── mhdb.service
+├── prometheus/
+│   └── prometheus.yml
+├── docker-compose.yml
+└── .env
