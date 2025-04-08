@@ -1,0 +1,35 @@
+mahdi_coin_app/
+├── backend/
+│   ├── app/
+│   │   ├── __init__.py
+│   │   ├── routes.py
+│   │   └── health.py
+│   ├── config/
+│   │   └── config.py
+│   ├── logs/
+│   ├── Dockerfile
+│   ├── requirements.txt
+│   └── wsgi.py
+├── frontend/
+│   ├── public/
+│   ├── src/
+│   │   ├── App.js
+│   │   └── index.js
+│   ├── nginx/
+│   │   └── nginx.conf
+│   ├── Dockerfile
+│   ├── package.json
+│   ├── .env
+│   └── .env.example
+├── ci-cd/
+│   └── deploy.yml
+├── deploy/
+│   ├── deploy.sh
+│   └── systemd/
+│       └── mhdb.service
+├── prometheus/
+│   └── prometheus.yml
+├── .env
+├── .dockerignore
+├── docker-compose.yml
+└── README.md
