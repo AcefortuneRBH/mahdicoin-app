@@ -1,0 +1,31 @@
+name: Check Changelog
+
+on:
+  pull_request:
+    types: [opened, reopened, labeled, unlabeled, synchronize]
+
+permissions:
+  contents: read
+
+jobs:
+  check-changelog:
+    if: ${{ !contains(github.event.pull_request.labels.*.name, 'skip changelog') }}
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Ensure CHANGELOG.md is modified
+        run: |
+          git fetch --no-tags --depth=1 origin ${{ github.base_ref }}
+          CHANGED_FILES=$(git diff --name-only origin/${{ github.base_ref }})
+
+          if ! echo "$CHANGED_FILES" | grep -q "^CHANGELOG.md$"; then
+            echo "CHANGELOG.md was not updated."
+            echo "Please include relevant changes in the changelog or add the 'skip changelog' label if not applicable."
+            exit 1
+          fi
+
+      - name: Add success annotation
+        if: success()
+        run: echo "CHANGELOG.md verified as updated."
