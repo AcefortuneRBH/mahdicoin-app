@@ -1,0 +1,6 @@
+      - name: Upload cleanup logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: hatchet-cleanup-logs
+          path: cleanup.log
