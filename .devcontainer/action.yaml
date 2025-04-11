@@ -1,0 +1,51 @@
+name: "Build Python Runtime"
+description: "Build, test, and optionally upload Python runtime to S3"
+inputs:
+  python_version:
+    description: "Python version to build"
+    required: true
+  stack_version:
+    description: "Heroku stack version"
+    required: true
+  arch:
+    description: "CPU architecture (e.g. amd64 or arm64)"
+    required: true
+  dry_run:
+    description: "Dry run mode (skip upload)"
+    required: false
+    default: "false"
+
+runs:
+  using: "composite"
+  steps:
+    - name: Build Docker image
+      shell: bash
+      run: |
+        docker build \
+          --platform="linux/${{ inputs.arch }}" \
+          --pull \
+          --tag buildenv \
+          --build-arg STACK_VERSION=${{ inputs.stack_version }} \
+          builds/
+
+    - name: Compile and package Python runtime
+      shell: bash
+      run: |
+        docker run --rm \
+          --volume="${PWD}/upload:/tmp/upload" \
+          buildenv ./build_python_runtime.sh "${{ inputs.python_version }}"
+
+    - name: Test Python runtime
+      shell: bash
+      run: |
+        RUN_IMAGE="heroku/heroku:${{ inputs.stack_version }}"
+        ARCHIVE_FILENAME="python-${{ inputs.python_version }}-ubuntu-${{ inputs.stack_version }}.04-${{ inputs.arch }}.tar.zst"
+        docker run --rm \
+          --volume="${PWD}/upload:/upload:ro" \
+          --volume="${PWD}/builds:/builds:ro" \
+          "${RUN_IMAGE}" /builds/test_python_runtime.sh "/upload/${ARCHIVE_FILENAME}"
+
+    - name: Upload Python runtime archive to S3
+      if: ${{ inputs.dry_run != 'true' }}
+      shell: bash
+      run: aws s3 sync ./upload "s3://${{ env.S3_BUCKET }}"
