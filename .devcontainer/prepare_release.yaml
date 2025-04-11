@@ -1,0 +1,7 @@
+uses: heroku/languages-github-actions/.github/workflows/_classic-buildpack-prepare-release.yml@v1.2.3
+with:
+  version: ${{ github.ref_name }}
+  dry_run: false
+concurrency:
+  group: prepare-release
+  cancel-in-progress: true
