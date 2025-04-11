@@ -1,0 +1,63 @@
+name: Build and upload Python runtime
+
+on:
+  workflow_dispatch:
+    inputs:
+      python_version:
+        description: "Python version"
+        type: string
+        required: true
+      stack:
+        description: "Stack"
+        type: choice
+        options: [auto, heroku-20, heroku-22, heroku-24]
+        default: auto
+      dry_run:
+        description: "Dry run (skip upload)"
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+env:
+  AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+  AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+  AWS_DEFAULT_REGION: us-east-1
+  S3_BUCKET: heroku-buildpack-python
+
+jobs:
+  build-python:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - stack: heroku-20
+            version: "20"
+            arch: amd64
+            run_on: pub-hk-ubuntu-24.04-xlarge
+          - stack: heroku-22
+            version: "22"
+            arch: amd64
+            run_on: pub-hk-ubuntu-24.04-xlarge
+          - stack: heroku-24
+            version: "24"
+            arch: amd64
+            run_on: pub-hk-ubuntu-24.04-xlarge
+          - stack: heroku-24
+            version: "24"
+            arch: arm64
+            run_on: pub-hk-ubuntu-24.04-arm-xlarge
+    if: inputs.stack == 'auto' || inputs.stack == matrix.stack
+    runs-on: ${{ matrix.run_on }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Build/Test/Upload runtime
+        uses: ./.github/actions/python-runtime
+        with:
+          python_version: ${{ inputs.python_version }}
+          stack_version: ${{ matrix.version }}
+          arch: ${{ matrix.arch }}
+          dry_run: ${{ inputs.dry_run }}
