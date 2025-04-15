@@ -1,0 +1,46 @@
+name: Deploy MahdiCoin App (Production Approval)
+
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Environment to deploy to'
+        required: true
+        default: 'production'
+        type: choice
+        options:
+          - production
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment:
+      name: ${{ github.event.inputs.environment }}
+      url: https://mahdicoin.com  # Optional: useful for workflow UI
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Python (backend dependency setup)
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.x'
+
+      - name: Install backend dependencies
+        run: |
+          pip install --upgrade pip
+          pip install -r backend/requirements.txt
+
+      - name: Manual Approval Required
+        run: |
+          echo "::error::Manual approval required. Please approve this deployment in the Actions tab."
+          exit 1
+
+      # This step only runs after manual re-run with approval
+      - name: Deploy to DigitalOcean App Platform
+        if: ${{ github.event.inputs.environment == 'production' }}
+        uses: digitalocean/app-action@v2
+        with:
+          app_name: 'mahdicoin-app'
+          token: ${{ secrets.DIGITALOCEAN_ACCESS_TOKEN }}
