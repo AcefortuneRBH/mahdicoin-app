@@ -2,4 +2,4 @@
 
 set -euo pipefail
 
-exec bin/print-env-vars.sh
+exec bin/test-entrypoints.sh
