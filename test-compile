@@ -1,0 +1,15 @@
+#!/usr/bin/env bash
+# Usage: bin/test-compile <build-dir> <cache-dir> <env-dir>
+# See: https://devcenter.heroku.com/articles/testpack-api
+
+set -euo pipefail
+shopt -s inherit_errexit
+
+# The absolute path to the root of the buildpack.
+BUILDPACK_DIR=$(cd "$(dirname "$(dirname "${BASH_SOURCE[0]}")")" && pwd)
+
+# Locale support for Pipenv.
+export LC_ALL=C.UTF-8
+export LANG=C.UTF-8
+
+DISABLE_COLLECTSTATIC=1 INSTALL_TEST=1 "${BUILDPACK_DIR}/bin/compile" "${1}" "${2}" "${3}"

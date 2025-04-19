@@ -1,57 +1,61 @@
-The provided diff shows the creation of a new directory layout for the `mahdi_coin_app` project. Here is a review of the changes:
+![python](https://cloud.githubusercontent.com/assets/51578/13712821/b68a42ce-e793-11e5-96b0-d8eb978137ba.png)
 
-### New Directory Structure:
+# Heroku Buildpack: Python
 
-1. **Backend (`backend/`)**:
-    - **App (`app/`)**:
-        - `__init__.py`: Initialization file for the app package.
-        - `routes.py`: Contains the routing definitions.
-        - `health.py`: Presumably contains health check endpoints.
-    - **Config (`config/`)**:
-        - `config.py`: Configuration settings for the app.
-    - **Logs (`logs/`)**: Directory for log files.
-    - `Dockerfile`: Instructions for building the backend Docker image.
-    - `requirements.txt`: Python dependencies for the backend.
-    - `wsgi.py`: Entry point for WSGI servers.
+[![CI](https://github.com/heroku/heroku-buildpack-python/actions/workflows/ci.yml/badge.svg)](https://github.com/heroku/heroku-buildpack-python/actions/workflows/ci.yml)
 
-2. **Frontend (`frontend/`)**:
-    - **Public (`public/`)**: Likely for static assets.
-    - **Src (`src/`)**:
-        - `App.js`: Main React component.
-        - `index.js`: Entry point for the React application.
-    - **NGINX (`nginx/`)**:
-        - `nginx.conf`: Configuration for NGINX server.
-    - `Dockerfile`: Instructions for building the frontend Docker image.
-    - `package.json`: Node.js package dependencies and scripts.
-    - `.env`: Environment variables.
-    - `.env.example`: Example environment variables file.
+This is the official [Heroku buildpack](https://devcenter.heroku.com/articles/buildpacks) for Python apps.
 
-3. **CI/CD (`ci-cd/`)**:
-    - `deploy.yml`: Deployment configuration for CI/CD pipeline.
+Recommended web frameworks include **Django** and **Flask**, among others. The recommended webserver is **Gunicorn**. There are no restrictions around what software can be used (as long as it's pip-installable). Web processes must bind to `$PORT`, and only the HTTP protocol is permitted for incoming connections.
 
-4. **Deployment (`deploy/`)**:
-    - `deploy.sh`: Deployment script.
-    - **Systemd (`systemd/`)**:
-        - `mhdb.service`: Systemd service configuration.
+## Getting Started
 
-5. **Prometheus (`prometheus/`)**:
-    - `prometheus.yml`: Configuration for Prometheus monitoring.
+See the [Getting Started on Heroku with Python](https://devcenter.heroku.com/articles/getting-started-with-python) tutorial.
 
-6. **Root Directory**:
-    - `.env`: Environment variables.
-    - `.dockerignore`: Files to be ignored by Docker.
-    - `docker-compose.yml`: Docker Compose configuration.
-    - `README.md`: Documentation for the project.
+## Application Requirements
 
-### Review Notes:
-- The new directory structure is well-organized, separating backend, frontend, CI/CD, deployment, and monitoring configurations.
-- The use of Docker and Docker Compose files suggests containerization best practices.
-- The inclusion of environment variable files (`.env` and `.env.example`) is good for managing configurations across different environments.
-- The presence of a separate directory for Prometheus configuration is indicative of monitoring being a priority.
+A `requirements.txt`, `Pipfile` or `poetry.lock` file must be present in the root (top-level) directory of your app's source code.
 
-### Recommendations:
-- Ensure that all configuration and script files are well-documented to help new developers understand their purpose and usage.
-- Regularly update the `README.md` to reflect changes in the project structure and provide clear instructions for setup and deployment.
-- Consider adding unit and integration tests if they are not already included, to maintain code quality and reliability.
+## Configuration
 
-Overall, the refactored directory layout is clean and follows standard conventions, making the project more maintainable and scalable.
+### Python Version
+
+We recommend that you specify a Python version for your app rather than relying on the buildpack's default Python version.
+
+For example, to request the latest patch release of Python 3.13, create a `.python-version` file in
+the root directory of your app containing:
+`3.13`
+
+We strongly recommend that you use the major version form instead of pinning to an exact version,
+since it will allow your app to receive Python security updates.
+
+The buildpack will look for a Python version in the following places (in descending order of precedence):
+
+1. `runtime.txt` file (deprecated)
+2. `.python-version` file (recommended)
+3. The `python_full_version` field in the `Pipfile.lock` file
+4. The `python_version` field in the `Pipfile.lock` file
+
+If none of those are found, the buildpack will use a default Python version for the first
+build of an app, and then subsequent builds of that app will be pinned to that version
+unless the build cache is cleared or you request a different version.
+
+The current default Python version is: 3.13
+
+The supported Python versions are:
+
+- Python 3.13
+- Python 3.12
+- Python 3.11
+- Python 3.10
+
+These Python versions are deprecated on Heroku:
+
+- Python 3.9
+
+Python versions older than those listed above are no longer supported, since they have reached
+end-of-life [upstream](https://devguide.python.org/versions/#supported-versions).
+
+## Documentation
+
+For more information about using Python on Heroku, see [Dev Center](https://devcenter.heroku.com/categories/python-support).
